@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Bezier
 {
+    [Serializable]
     public class Curve
     {
         public CurveType type;
@@ -89,6 +91,7 @@ namespace Bezier
         {
             List<Vector3> segments = new List<Vector3>();
 
+            // Start segments with start point
             segments.Add(p[0]);
 
             float t;
@@ -99,21 +102,12 @@ namespace Bezier
                 t = (float)(i+1)/accuracy;
                 s = GetSegment(t);
                 distance = Vector3.Distance(s, segments[segments.Count-1]);
-                if (distance > length)
-                {
+                if (distance >= length)
                     segments.Add(s);
-                }
             }
-
-            Vector3 endP;
-            if (type == CurveType.Linear)
-                endP = p[1];
-            else if (type == CurveType.Quadratic)
-                endP = p[2];
-            else
-                endP = p[3];
-            if (segments[segments.Count-1] != endP)
-                segments.Add(endP);
+            // Close segments with end point
+            if (segments[segments.Count-1] != endPosition)
+                segments.Add(endPosition);
 
             return segments.ToArray();
         }

@@ -86,7 +86,7 @@ namespace Bezier
                     addCurveButton = GUILayout.Button("+", GUILayout.Width(30));
                     if (addCurveButton)
                     {
-                        path.AddCurve(i+1);
+                        path.AddEmptyCurve(i+1);
                     }
                     removeCurveButton = GUILayout.Button("-", GUILayout.Width(30));
                     if (removeCurveButton)
@@ -102,7 +102,7 @@ namespace Bezier
                 addCurveButton = GUILayout.Button("+", GUILayout.Width(30));
                 if (addCurveButton)
                 {
-                    path.AddCurve();
+                    path.AddEmptyCurve();
                 }
                 removeCurveButton = GUILayout.Button("-", GUILayout.Width(30));
                 if (removeCurveButton)
@@ -146,6 +146,7 @@ namespace Bezier
             if (path.curves.Count == 0)
                 return;
 
+            Vector3 offset = path.transform.position;
             Vector3[] segments;
             if (uniformSegments)
                 segments = path.GetUniformSegments(segmentLength, division);
@@ -157,13 +158,17 @@ namespace Bezier
             {
                 if (path.curves[i].type == CurveType.Quadratic)
                 {
-                    Handles.DrawLine(path.curves[i].p[0], path.curves[i].p[1]);
-                    Handles.DrawLine(path.curves[i].p[2], path.curves[i].p[1]);
+                    Handles.DrawLine(path.curves[i].p[0] + offset, 
+                        path.curves[i].p[1] + offset);
+                    Handles.DrawLine(path.curves[i].p[2] + offset,
+                        path.curves[i].p[1] + offset);
                 }
                 else if (path.curves[i].type == CurveType.Cubic)
                 {
-                    Handles.DrawLine(path.curves[i].p[0], path.curves[i].p[1]);
-                    Handles.DrawLine(path.curves[i].p[3], path.curves[i].p[2]);
+                    Handles.DrawLine(path.curves[i].p[0] + offset, 
+                        path.curves[i].p[1] + offset);
+                    Handles.DrawLine(path.curves[i].p[3] + offset, 
+                        path.curves[i].p[2] + offset);
                 }
             }
             // Draw lines
@@ -185,21 +190,21 @@ namespace Bezier
             for (int i = 0; i < path.curves.Count; i++)
             {
                 if (i == 0)
-                    Handles.Label(path.curves[i].p[0], "C"+i+"P0");
+                    Handles.Label(path.curves[i].p[0] + offset, "C"+i+"P0");
                 if (path.curves[i].type == CurveType.Linear)
                 {
-                    Handles.Label(path.curves[i].p[1], "C"+i+"P1");
+                    Handles.Label(path.curves[i].p[1] + offset, "C"+i+"P1");
                 }
                 else if (path.curves[i].type == CurveType.Quadratic)
                 {
-                    Handles.Label(path.curves[i].p[1], "C"+i+"P1", black);
-                    Handles.Label(path.curves[i].p[2], "C"+i+"P2");
+                    Handles.Label(path.curves[i].p[1] + offset, "C"+i+"P1", black);
+                    Handles.Label(path.curves[i].p[2] + offset, "C"+i+"P2");
                 }
                 else if (path.curves[i].type == CurveType.Cubic)
                 {
-                    Handles.Label(path.curves[i].p[1], "C"+i+"P1", black);
-                    Handles.Label(path.curves[i].p[2], "C"+i+"P2", black);
-                    Handles.Label(path.curves[i].p[3], "C"+i+"P3");
+                    Handles.Label(path.curves[i].p[1] + offset, "C"+i+"P1", black);
+                    Handles.Label(path.curves[i].p[2] + offset, "C"+i+"P2", black);
+                    Handles.Label(path.curves[i].p[3] + offset, "C"+i+"P3");
                 }
             }
         }

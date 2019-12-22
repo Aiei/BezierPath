@@ -7,12 +7,38 @@ namespace Bezier
     {
         public List<Curve> curves = new List<Curve>();
 
-        public void AddCurve (int index = -1)
+        public Vector3 startPosition
+        {
+            get
+            {
+                return OffsetVector(curves[0].startPosition, transform.position,
+                    transform.rotation);
+            }
+        }
+
+        public Vector3 endPosition
+        {
+            get
+            {
+                return OffsetVector(curves[curves.Count-1].endPosition,
+                    transform.position, transform.rotation);
+            }
+        }
+
+        public void AddEmptyCurve (int index = -1)
         {
             if (index == -1)
                 curves.Add(new Curve());
             else
                 curves.Insert(index, new Curve());
+        }
+
+        public void AddCurve (CurveType type, Vector3[] points, int index = -1)
+        {
+            if (index == -1)
+                curves.Add(new Curve(type, points));
+            else
+                curves.Insert(index, new Curve(type, points));
         }
 
         public void RemoveCurve (int index = -1)
@@ -36,11 +62,17 @@ namespace Bezier
                 segments.AddRange(curves[i].GetSegments(division));
             }
 
-            return segments.ToArray();
+            Vector3[] v = segments.ToArray();
+            v = OffsetVectors(v, transform.position, transform.rotation);
+
+            return v;
         }
 
         public Vector3[] GetUniformSegments (float length, int accuracy)
         {
+            if (curves.Count == 0)
+                return null;
+
             Vector3[] segments = GetSegments(accuracy);
             List<Vector3> uSegments = new List<Vector3>();
             // Include first point
@@ -57,6 +89,23 @@ namespace Bezier
             if (uSegments[uSegments.Count-1] != segments[segments.Length-1])
                 uSegments.Add(segments[segments.Length-1]);
             return uSegments.ToArray();
+        }
+
+        Vector3[] OffsetVectors (Vector3[] vectors, Vector3 offset, Quaternion rotation)
+        {
+            for (int i = 0; i < vectors.Length; i++)
+            {
+                vectors[i] = rotation * vectors[i];
+                vectors[i] += offset; 
+            }
+            return vectors;
+        }
+
+        Vector3 OffsetVector (Vector3 vector, Vector3 offset, Quaternion rotation)
+        {
+            vector = rotation * vector;
+            vector += offset;
+            return vector;
         }
     }
 }
