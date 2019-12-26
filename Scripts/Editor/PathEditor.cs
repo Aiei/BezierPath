@@ -7,8 +7,9 @@ namespace Bezier
     [CustomEditor(typeof(Path))]
     public class PathEditor : Editor
     {
+        bool displayCurves = false;
         bool showCurveEditor = true;
-        bool showSettings = false;
+        bool showSettings = true;
         bool showDots = false;
         int division = 20;
         bool uniformSegments = false;
@@ -118,6 +119,7 @@ namespace Bezier
             if (showSettings)
             {
                 EditorGUILayout.BeginVertical(indented);
+                displayCurves = EditorGUILayout.Toggle("Display Curves", displayCurves);
                 showDots = EditorGUILayout.Toggle("Show Dots", showDots);
                 division = EditorGUILayout.IntField("Division", division);
                 uniformSegments = EditorGUILayout.Toggle("Uniform Segments", uniformSegments);
@@ -144,6 +146,9 @@ namespace Bezier
             if (path == null)
                 return;
             if (path.curves.Count == 0)
+                return;
+            
+            if (!displayCurves)
                 return;
 
             Vector3 offset = path.transform.position;
