@@ -11,6 +11,7 @@ namespace Bezier
         bool showCurveEditor = true;
         bool showSettings = true;
         bool showDots = false;
+        bool showHandles = false;
         int division = 20;
         bool uniformSegments = false;
         float segmentLength = 0.5f;
@@ -36,6 +37,8 @@ namespace Bezier
 
         public override void OnInspectorGUI ()
         {
+            serializedObject.Update();
+            
             Path path = target as Path;
             if (path == null)
                 return;
@@ -120,6 +123,7 @@ namespace Bezier
             {
                 EditorGUILayout.BeginVertical(indented);
                 displayCurves = EditorGUILayout.Toggle("Display Curves", displayCurves);
+                showHandles = EditorGUILayout.Toggle("Show Handles", showHandles);
                 showDots = EditorGUILayout.Toggle("Show Dots", showDots);
                 division = EditorGUILayout.IntField("Division", division);
                 uniformSegments = EditorGUILayout.Toggle("Uniform Segments", uniformSegments);
@@ -140,9 +144,9 @@ namespace Bezier
             }
         }
 
-        void OnSceneGUI ()
+        public void OnSceneGUI ()
         {
-            Path path = target as Path;
+            Path path = (target as Path);
             if (path == null)
                 return;
             if (path.curves.Count == 0)
@@ -187,29 +191,65 @@ namespace Bezier
             {
                 for (int i = 0; i < segments.Length-1; i++)
                 {
-                    Handles.DotHandleCap(0, segments[i], Quaternion.identity, 0.05f, EventType.Repaint);
+                    Handles.DotHandleCap(0, segments[i], Quaternion.identity,
+                        0.05f, EventType.Repaint);
                 }
-                Handles.DotHandleCap(0, segments[segments.Length-1], Quaternion.identity, 0.05f, EventType.Repaint);
+                Handles.DotHandleCap(0, segments[segments.Length-1], Quaternion.identity,
+                    0.05f, EventType.Repaint);
             }
             // Draw points
+            Vector3 p0, p1, p2, p3;
+            EditorGUI.BeginChangeCheck();
             for (int i = 0; i < path.curves.Count; i++)
             {
                 if (i == 0)
+                {
                     Handles.Label(path.curves[i].p[0] + offset, "C"+i+"P0");
+
+                    if (showHandles)
+                    {
+                        p0 = Handles.PositionHandle(path.curves[i].p[0] + offset, Quaternion.identity);
+                        path.curves[i].p[0] = p0 - offset;
+                    }
+                }
                 if (path.curves[i].type == CurveType.Linear)
                 {
                     Handles.Label(path.curves[i].p[1] + offset, "C"+i+"P1");
+
+                    if (showHandles)
+                    {
+                        p1 = Handles.PositionHandle(path.curves[i].p[1] + offset, Quaternion.identity);
+                        path.curves[i].p[1] = p1 - offset;
+                    }
                 }
                 else if (path.curves[i].type == CurveType.Quadratic)
                 {
                     Handles.Label(path.curves[i].p[1] + offset, "C"+i+"P1", black);
                     Handles.Label(path.curves[i].p[2] + offset, "C"+i+"P2");
+
+                    if (showHandles)
+                    {
+                        p1 = Handles.PositionHandle(path.curves[i].p[1] + offset, Quaternion.identity);
+                        p2 = Handles.PositionHandle(path.curves[i].p[2] + offset, Quaternion.identity);
+                        path.curves[i].p[1] = p1 - offset;
+                        path.curves[i].p[2] = p2 - offset;
+                    }
                 }
                 else if (path.curves[i].type == CurveType.Cubic)
                 {
                     Handles.Label(path.curves[i].p[1] + offset, "C"+i+"P1", black);
                     Handles.Label(path.curves[i].p[2] + offset, "C"+i+"P2", black);
                     Handles.Label(path.curves[i].p[3] + offset, "C"+i+"P3");
+
+                    if (showHandles)
+                    {
+                        p1 = Handles.PositionHandle(path.curves[i].p[1] + offset, Quaternion.identity);
+                        p2 = Handles.PositionHandle(path.curves[i].p[2] + offset, Quaternion.identity);
+                        p3 = Handles.PositionHandle(path.curves[i].p[3] + offset, Quaternion.identity);
+                        path.curves[i].p[1] = p1 - offset;
+                        path.curves[i].p[2] = p2 - offset;
+                        path.curves[i].p[3] = p3 - offset;
+                    }
                 }
             }
         }
